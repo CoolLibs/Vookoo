@@ -30,7 +30,7 @@
 #include <cstddef>
 
 #ifdef VOOKOO_SPIRV_SUPPORT
-  #include <unified1/spirv.hpp11>
+  #include <spirv.hpp11>
 #endif
 
 #include <vulkan/vulkan.hpp>
