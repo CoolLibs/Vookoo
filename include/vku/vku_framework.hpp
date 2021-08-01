@@ -477,6 +477,7 @@ public:
   }
 
   Window &operator=(Window &&rhs) = default;
+  Window(Window &&rhs) = default;
 
   /// Return the width of the display.
   uint32_t width() const { return width_; }
