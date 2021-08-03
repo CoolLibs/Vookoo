@@ -1579,9 +1579,9 @@ public:
     cb.copyBufferToImage(buffer, *s.image, vk::ImageLayout::eTransferDstOptimal, region);
   }
 
-  void upload(vk::Device device, std::vector<uint8_t> &bytes, vk::CommandPool commandPool, vk::PhysicalDeviceMemoryProperties memprops, vk::Queue queue) {
-    vku::GenericBuffer stagingBuffer(device, memprops, (vk::BufferUsageFlags)vk::BufferUsageFlagBits::eTransferSrc, (vk::DeviceSize)bytes.size(), vk::MemoryPropertyFlagBits::eHostVisible);
-    stagingBuffer.updateLocal(device, (const void*)bytes.data(), bytes.size());
+  void upload(vk::Device device, const uint8_t *bytes_array, size_t bytes_array_size, vk::CommandPool commandPool, vk::PhysicalDeviceMemoryProperties memprops, vk::Queue queue) {
+    vku::GenericBuffer stagingBuffer(device, memprops, (vk::BufferUsageFlags)vk::BufferUsageFlagBits::eTransferSrc, (vk::DeviceSize)bytes_array_size, vk::MemoryPropertyFlagBits::eHostVisible);
+    stagingBuffer.updateLocal(device, (const void*)bytes_array, bytes_array_size);
 
     // Copy the staging buffer to the GPU texture and set the layout.
     vku::executeImmediately(device, commandPool, queue, [&](vk::CommandBuffer cb) {
@@ -1599,6 +1599,10 @@ public:
       }
       setLayout(cb, vk::ImageLayout::eShaderReadOnlyOptimal);
     });
+  }
+  
+  void upload(vk::Device device, std::vector<uint8_t> &bytes, vk::CommandPool commandPool, vk::PhysicalDeviceMemoryProperties memprops, vk::Queue queue) {
+    upload(device, bytes.data(), bytes.size(), commandPool, memprops, queue);
   }
 
   /// Change the layout of this image using a memory barrier.
