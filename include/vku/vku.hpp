@@ -818,10 +818,13 @@ public:
     SpecData &operator=(const SpecData &) = delete;
   };
 public:
-  PipelineMaker(uint32_t width, uint32_t height) {
+  PipelineMaker(uint32_t width, uint32_t height)
+    : PipelineMaker{0, 0, width, height}
+  {}
+  PipelineMaker(int32_t topLeftX, int32_t topLeftY, uint32_t width, uint32_t height) {
     inputAssemblyState_.topology = vk::PrimitiveTopology::eTriangleList;
-    viewport_ = vk::Viewport{0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f};
-    scissor_ = vk::Rect2D{{0, 0}, {width, height}};
+    viewport_ = vk::Viewport{(float)topLeftX, (float)topLeftY, (float)width, (float)height, 0.0f, 1.0f};
+    scissor_ = vk::Rect2D{{topLeftX, topLeftY}, {width, height}};
     rasterizationState_.lineWidth = 1.0f;
 
     // Set up depth test, but do not enable it.
