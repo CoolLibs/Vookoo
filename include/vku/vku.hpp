@@ -1727,7 +1727,7 @@ public:
   TextureImage2D() {
   }
 
-  TextureImage2D(vk::Device device, const vk::PhysicalDeviceMemoryProperties &memprops, uint32_t width, uint32_t height, uint32_t mipLevels=1, vk::Format format = vk::Format::eR8G8B8A8Unorm, bool hostImage = false) {
+  TextureImage2D(vk::Device device, const vk::PhysicalDeviceMemoryProperties &memprops, uint32_t width, uint32_t height, uint32_t mipLevels=1, vk::Format format = vk::Format::eR8G8B8A8Unorm, bool hostImage = false, vk::ImageUsageFlags additionalUsageFlags = (vk::ImageUsageFlags)0) {
     vk::ImageCreateInfo info;
     info.flags = {};
     info.imageType = vk::ImageType::e2D;
@@ -1737,7 +1737,7 @@ public:
     info.arrayLayers = 1;
     info.samples = vk::SampleCountFlagBits::e1;
     info.tiling = hostImage ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal;
-    info.usage = vk::ImageUsageFlagBits::eSampled|vk::ImageUsageFlagBits::eTransferSrc|vk::ImageUsageFlagBits::eTransferDst;
+    info.usage = vk::ImageUsageFlagBits::eSampled|vk::ImageUsageFlagBits::eTransferSrc|vk::ImageUsageFlagBits::eTransferDst|additionalUsageFlags;
     info.sharingMode = vk::SharingMode::eExclusive;
     info.queueFamilyIndexCount = 0;
     info.pQueueFamilyIndices = nullptr;
