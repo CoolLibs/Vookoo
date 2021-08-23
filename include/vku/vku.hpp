@@ -1526,6 +1526,7 @@ public:
   vk::ImageView imageView() const { return *s.imageView; }
   vk::DeviceMemory mem() const { return *s.mem; }
   vk::ImageLayout layout() const { return s.currentLayout; }
+  vk::ImageUsageFlags imageUsageFlags() const { return s.info.usage; }
 
   /// Clear the colour of an image.
   void clear(vk::CommandBuffer cb, const std::array<float,4> colour = {1, 1, 1, 1}) {
