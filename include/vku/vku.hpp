@@ -1624,15 +1624,18 @@ public:
     imageMemoryBarriers.image = *s.image;
     imageMemoryBarriers.subresourceRange = {aspectMask, 0, s.info.mipLevels, 0, s.info.arrayLayers};
 
+    typedef vk::ImageLayout il;
+    typedef vk::AccessFlagBits afb;
+
     // Put barrier on top
-    vk::PipelineStageFlags srcStageMask{vk::PipelineStageFlagBits::eTopOfPipe};
-    vk::PipelineStageFlags dstStageMask{vk::PipelineStageFlagBits::eTopOfPipe};
+    vk::PipelineStageFlags srcStageMask{(oldLayout == il::eTransferDstOptimal || newLayout == il::eTransferDstOptimal) ? vk::PipelineStageFlagBits::eTransfer : vk::PipelineStageFlagBits::eTopOfPipe};
+    vk::PipelineStageFlags dstStageMask{(oldLayout == il::eTransferDstOptimal || newLayout == il::eTransferDstOptimal) ? vk::PipelineStageFlagBits::eTransfer : vk::PipelineStageFlagBits::eTopOfPipe};
+    if (newLayout == il::eShaderReadOnlyOptimal) {
+        dstStageMask = vk::PipelineStageFlagBits::eVertexShader;
+    }
     vk::DependencyFlags dependencyFlags{};
     vk::AccessFlags srcMask{};
     vk::AccessFlags dstMask{};
-
-    typedef vk::ImageLayout il;
-    typedef vk::AccessFlagBits afb;
 
     // Is it me, or are these the same?
     switch (oldLayout) {
