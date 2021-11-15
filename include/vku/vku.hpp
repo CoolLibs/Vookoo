@@ -48,7 +48,7 @@ std::string format(const char *fmt, Args... args) {
 
 /// Utility function for finding memory types for uniforms and images.
 inline int findMemoryTypeIndex(const vk::PhysicalDeviceMemoryProperties &memprops, uint32_t memoryTypeBits, vk::MemoryPropertyFlags search) {
-  for (int i = 0; i != memprops.memoryTypeCount; ++i, memoryTypeBits >>= 1) {
+  for (int i = 0; i != static_cast<int>(memprops.memoryTypeCount); ++i, memoryTypeBits >>= 1) {
     if (memoryTypeBits & 1) {
       if ((memprops.memoryTypes[i].propertyFlags & search) == search) {
         return i;
@@ -479,9 +479,9 @@ public:
 private:
   // Report any errors or warnings.
   static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-      VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType,
-      uint64_t object, size_t location, int32_t messageCode,
-      const char *pLayerPrefix, const char *pMessage, void *pUserData) {
+      VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT /*objectType*/,
+      uint64_t /*object*/, size_t /*location*/, int32_t /*messageCode*/,
+      const char * /*pLayerPrefix*/, const char *pMessage, void * /*pUserData*/) {
     printf("%08x debugCallback: %s\n", flags, pMessage);
     return VK_FALSE;
   }
@@ -660,7 +660,7 @@ public:
   /// This exposes the Uniforms, inputs, outputs, push constants.
   /// See spv::StorageClass for more details.
   std::vector<Variable> getVariables() const {
-    auto bound = s.opcodes_[3];
+    // auto bound = s.opcodes_[3];
 
     std::unordered_map<int, int> bindings;
     std::unordered_map<int, int> locations;
@@ -713,13 +713,13 @@ public:
   std::ostream &write(std::ostream &os) {
     os << "static const uint32_t shader[] = {\n";
     char tmp[256];
-    auto p = s.opcodes_.begin();
+    auto pp = s.opcodes_.begin();
     snprintf(
-      tmp, sizeof(tmp), "  0x%08x,0x%08x,0x%08x,0x%08x,0x%08x,\n", p[0], p[1], p[2], p[3], p[4]);
+      tmp, sizeof(tmp), "  0x%08x,0x%08x,0x%08x,0x%08x,0x%08x,\n", pp[0], pp[1], pp[2], pp[3], pp[4]);
     os << tmp;
     for (int i = 5; i != s.opcodes_.size(); i += s.opcodes_[i] >> 16) {
       char *p = tmp + 2, *e = tmp + sizeof(tmp) - 2;
-      for (int j = i; j != i + (s.opcodes_[i] >> 16); ++j) {
+      for (int j = i; j != static_cast<int>(i + (s.opcodes_[i] >> 16)); ++j) {
         p += snprintf(p, e-p, "0x%08x,", s.opcodes_[j]);
         if (p > e-16) { *p++ = '\n'; *p = 0; os << tmp; p = tmp + 2; }
       }
@@ -889,7 +889,7 @@ public:
     pipelineInfo.pDynamicState = dynamicState_.empty() ? nullptr : &dynState;
     pipelineInfo.subpass = subpass_;
 
-    return device.createGraphicsPipelineUnique(pipelineCache, pipelineInfo);
+    return device.createGraphicsPipelineUnique(pipelineCache, pipelineInfo).value;
   }
 
   /// Add a shader module to the pipeline.
@@ -1164,7 +1164,7 @@ public:
     pipelineInfo.stage = stage_;
     pipelineInfo.layout = pipelineLayout;
 
-    return device.createComputePipelineUnique(pipelineCache, pipelineInfo);
+    return device.createComputePipelineUnique(pipelineCache, pipelineInfo).value;
   }
 private:
   vk::PipelineShaderStageCreateInfo stage_;
@@ -1547,7 +1547,7 @@ public:
         uint8_t *dest = (uint8_t *)device.mapMemory(*s.mem, 0, s.size, vk::MemoryMapFlags{}) + srlayout.offset;
         size_t bytesPerLine = s.info.extent.width * bytesPerPixel;
         size_t srcStride = bytesPerLine * info().arrayLayers;
-        for (int y = 0; y != s.info.extent.height; ++y) {
+        for (int y = 0; y != static_cast<int>(s.info.extent.height); ++y) {
           memcpy(dest, src + arrayLayer * bytesPerLine, bytesPerLine);
           src += srcStride;
           dest += srlayout.rowPitch;
